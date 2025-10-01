@@ -2,13 +2,22 @@ import { useState } from "react";
 import { CryptoCard } from "@/components/CryptoCard";
 import { CryptoSkeleton } from "@/components/CryptoSkeleton";
 import { SearchBar } from "@/components/SearchBar";
-import { useCryptoData } from "@/hooks/useCryptoData";
-import { TrendingUp } from "lucide-react";
+import { SortControls, SortOption } from "@/components/SortControls";
+import { CryptoDetailModal } from "@/components/CryptoDetailModal";
+import { useCryptoData, CryptoData } from "@/hooks/useCryptoData";
+import { useFavorites } from "@/hooks/useFavorites";
+import { TrendingUp, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("market_cap");
+  const [selectedCrypto, setSelectedCrypto] = useState<CryptoData | null>(null);
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const { data: cryptoData, isLoading, error } = useCryptoData();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { toast } = useToast();
 
   if (error) {
@@ -19,11 +28,19 @@ const Index = () => {
     });
   }
 
-  const filteredData = cryptoData?.filter(
-    (crypto) =>
-      crypto.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      crypto.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredAndSortedData = cryptoData
+    ?.filter((crypto) => {
+      const matchesSearch =
+        crypto.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        crypto.symbol.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesFavorites = !showOnlyFavorites || isFavorite(crypto.id);
+      return matchesSearch && matchesFavorites;
+    })
+    .sort((a, b) => {
+      const aValue = a[sortBy];
+      const bValue = b[sortBy];
+      return (bValue || 0) - (aValue || 0);
+    });
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,13 +59,29 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground">Real-time cryptocurrency prices</p>
               </div>
             </div>
-            <SearchBar value={searchQuery} onChange={setSearchQuery} />
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+              <SearchBar value={searchQuery} onChange={setSearchQuery} />
+              <Button
+                variant={showOnlyFavorites ? "default" : "outline"}
+                onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+                className="gap-2 whitespace-nowrap"
+              >
+                <Star size={16} className={showOnlyFavorites ? "fill-current" : ""} />
+                Favorites {favorites.length > 0 && `(${favorites.length})`}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
+        {/* Sort Controls */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-foreground mb-3">Sort by:</h2>
+          <SortControls currentSort={sortBy} onSortChange={setSortBy} />
+        </div>
+
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(12)].map((_, i) => (
@@ -57,26 +90,43 @@ const Index = () => {
           </div>
         ) : (
           <>
-            {filteredData && filteredData.length > 0 ? (
+            {filteredAndSortedData && filteredAndSortedData.length > 0 ? (
               <>
                 <div className="mb-6">
                   <p className="text-muted-foreground">
-                    Showing {filteredData.length} {filteredData.length === 1 ? "cryptocurrency" : "cryptocurrencies"}
+                    Showing {filteredAndSortedData.length} {filteredAndSortedData.length === 1 ? "cryptocurrency" : "cryptocurrencies"}
+                    {showOnlyFavorites && " in favorites"}
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredData.map((crypto) => (
-                    <CryptoCard key={crypto.id} {...crypto} />
+                  {filteredAndSortedData.map((crypto) => (
+                    <CryptoCard
+                      key={crypto.id}
+                      {...crypto}
+                      isFavorite={isFavorite(crypto.id)}
+                      onToggleFavorite={toggleFavorite}
+                      onClick={() => setSelectedCrypto(crypto)}
+                    />
                   ))}
                 </div>
               </>
             ) : (
               <div className="text-center py-12">
-                <p className="text-xl text-muted-foreground">No cryptocurrencies found matching "{searchQuery}"</p>
+                <p className="text-xl text-muted-foreground">
+                  {showOnlyFavorites
+                    ? "No favorites yet. Click the star icon on any crypto to add it to your favorites!"
+                    : `No cryptocurrencies found matching "${searchQuery}"`}
+                </p>
               </div>
             )}
           </>
         )}
+
+        <CryptoDetailModal
+          crypto={selectedCrypto}
+          isOpen={!!selectedCrypto}
+          onClose={() => setSelectedCrypto(null)}
+        />
       </main>
 
       {/* Footer */}
