@@ -36,6 +36,6 @@ export const useCryptoNews = () => {
   return useQuery({
     queryKey: ["crypto-news"],
     queryFn: fetchCryptoNews,
-    refetchInterval: 300000, // Refetch every 5 minutes
+    refetchInterval: 1000, // Refetch every second
   });
 };
