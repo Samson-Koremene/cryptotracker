@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CryptoCard } from "@/components/CryptoCard";
 import { CryptoSkeleton } from "@/components/CryptoSkeleton";
 import { SearchBar } from "@/components/SearchBar";
@@ -20,13 +20,15 @@ const Index = () => {
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { toast } = useToast();
 
-  if (error) {
-    toast({
-      title: "Error fetching data",
-      description: "Failed to load cryptocurrency data. Please try again later.",
-      variant: "destructive",
-    });
-  }
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error fetching data",
+        description: "Failed to load cryptocurrency data. Please try again later.",
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
   const filteredAndSortedData = cryptoData
     ?.filter((crypto) => {
