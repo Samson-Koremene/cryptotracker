@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { CryptoChart } from "@/components/CryptoChart";
 
 interface CryptoDetailModalProps {
   crypto: {
@@ -66,6 +67,12 @@ export const CryptoDetailModal = ({ crypto, isOpen, onClose }: CryptoDetailModal
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Chart Section */}
+          <div className="glass-card p-4 rounded-lg border border-border/30">
+            <h4 className="text-sm font-semibold text-foreground mb-4">Price Chart</h4>
+            <CryptoChart coinId={crypto.id} isPositive={isPositive} />
+          </div>
+
           {/* Price Section */}
           <div className="space-y-2">
             <div className="flex items-end gap-3">
