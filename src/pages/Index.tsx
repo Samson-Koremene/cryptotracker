@@ -4,6 +4,7 @@ import { CryptoSkeleton } from "@/components/CryptoSkeleton";
 import { SearchBar } from "@/components/SearchBar";
 import { SortControls, SortOption } from "@/components/SortControls";
 import { CryptoDetailModal } from "@/components/CryptoDetailModal";
+import { NewsSection } from "@/components/NewsSection";
 import { useCryptoData, CryptoData } from "@/hooks/useCryptoData";
 import { useFavorites } from "@/hooks/useFavorites";
 import { TrendingUp, Star } from "lucide-react";
@@ -78,6 +79,9 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
+        {/* News Section */}
+        <NewsSection />
+
         {/* Sort Controls */}
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-foreground mb-3">Sort by:</h2>
