@@ -11,9 +11,15 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { TableView } from "@/components/TableView";
 import { ExportButton } from "@/components/ExportButton";
 import { PortfolioModal } from "@/components/PortfolioModal";
+import { FearGreedIndex } from "@/components/FearGreedIndex";
+import { PriceAlertsModal } from "@/components/PriceAlertsModal";
+import { Calculators } from "@/components/Calculators";
+import { TransactionHistory } from "@/components/TransactionHistory";
+import { PriceComparison } from "@/components/PriceComparison";
 import { useCryptoData, CryptoData } from "@/hooks/useCryptoData";
 import { useFavorites } from "@/hooks/useFavorites";
-import { TrendingUp, Star, LayoutGrid, List, Wallet } from "lucide-react";
+import { usePriceAlerts } from "@/hooks/usePriceAlerts";
+import { TrendingUp, Star, LayoutGrid, List, Wallet, Bell, History, Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,10 +31,35 @@ const Index = () => {
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [showPortfolio, setShowPortfolio] = useState(false);
+  const [showAlerts, setShowAlerts] = useState(false);
+  const [showTransactions, setShowTransactions] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(12);
   const { data: cryptoData, isLoading, error } = useCryptoData();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const { alerts, triggerAlert } = usePriceAlerts();
   const { toast } = useToast();
+
+  // Check price alerts
+  useEffect(() => {
+    if (!cryptoData || alerts.length === 0) return;
+
+    alerts.forEach((alert) => {
+      const crypto = cryptoData.find((c) => c.id === alert.cryptoId);
+      if (!crypto || alert.triggered) return;
+
+      const shouldTrigger =
+        (alert.condition === "above" && crypto.current_price > alert.targetPrice) ||
+        (alert.condition === "below" && crypto.current_price < alert.targetPrice);
+
+      if (shouldTrigger) {
+        triggerAlert(alert.id);
+        toast({
+          title: "Price Alert Triggered! 🔔",
+          description: `${crypto.name} is now ${alert.condition} $${alert.targetPrice}`,
+        });
+      }
+    });
+  }, [cryptoData, alerts, triggerAlert, toast]);
 
   useEffect(() => {
     if (error) {
@@ -92,6 +123,22 @@ const Index = () => {
                   <Wallet size={16} />
                   Portfolio
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAlerts(true)}
+                  className="gap-2 whitespace-nowrap"
+                >
+                  <Bell size={16} />
+                  Alerts {alerts.length > 0 && `(${alerts.length})`}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowTransactions(true)}
+                  className="gap-2 whitespace-nowrap"
+                >
+                  <History size={16} />
+                  History
+                </Button>
                 <ThemeToggle />
               </div>
             </div>
@@ -101,8 +148,19 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Market Overview */}
-        <MarketOverview />
+        {/* Market Overview & Fear & Greed */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2">
+            <MarketOverview />
+          </div>
+          <FearGreedIndex />
+        </div>
+
+        {/* Advanced Tools */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <Calculators />
+          {cryptoData && <PriceComparison cryptoData={cryptoData} />}
+        </div>
 
         {/* Top Movers */}
         {cryptoData && cryptoData.length > 0 && (
@@ -210,6 +268,18 @@ const Index = () => {
         <PortfolioModal
           isOpen={showPortfolio}
           onClose={() => setShowPortfolio(false)}
+          cryptoData={cryptoData || []}
+        />
+
+        <PriceAlertsModal
+          isOpen={showAlerts}
+          onClose={() => setShowAlerts(false)}
+          cryptoData={cryptoData || []}
+        />
+
+        <TransactionHistory
+          isOpen={showTransactions}
+          onClose={() => setShowTransactions(false)}
           cryptoData={cryptoData || []}
         />
       </main>
