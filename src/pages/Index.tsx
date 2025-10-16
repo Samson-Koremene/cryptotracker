@@ -13,16 +13,16 @@ import { ExportButton } from "@/components/ExportButton";
 import { PortfolioModal } from "@/components/PortfolioModal";
 import { FearGreedIndex } from "@/components/FearGreedIndex";
 import { PriceAlertsModal } from "@/components/PriceAlertsModal";
-import { Calculators } from "@/components/Calculators";
 import { TransactionHistory } from "@/components/TransactionHistory";
 import { PriceComparison } from "@/components/PriceComparison";
+import { CalculatorSidebar } from "@/components/CalculatorSidebar";
 import { useCryptoData, CryptoData } from "@/hooks/useCryptoData";
 import { useFavorites } from "@/hooks/useFavorites";
 import { usePriceAlerts } from "@/hooks/usePriceAlerts";
-import { TrendingUp, Star, LayoutGrid, List, Wallet, Bell, History, Calculator } from "lucide-react";
+import { TrendingUp, Star, LayoutGrid, List, Wallet, Bell, History } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,7 +88,89 @@ const Index = () => {
   const displayedData = filteredAndSortedData?.slice(0, displayLimit);
 
   return (
-    <div className="min-h-screen bg-background">
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen bg-background w-full flex">
+        <div className="flex-1 min-w-0">
+          {/* Header */}
+          <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-10">
+            <div className="container mx-auto px-4 py-6">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center">
+                    <TrendingUp size={24} className="text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                      CryptoTracker
+                    </h1>
+                    <p className="text-sm text-muted-foreground">Real-time cryptocurrency prices</p>
+                  </div>
+                </div>
+                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                  <SearchBar value={searchQuery} onChange={setSearchQuery} />
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      variant={showOnlyFavorites ? "default" : "outline"}
+                      onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+                      className="gap-2 whitespace-nowrap"
+                    >
+                      <Star size={16} className={showOnlyFavorites ? "fill-current" : ""} />
+                      Favorites {favorites.length > 0 && `(${favorites.length})`}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowPortfolio(true)}
+                      className="gap-2 whitespace-nowrap"
+                    >
+                      <Wallet size={16} />
+                      Portfolio
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowAlerts(true)}
+                      className="gap-2 whitespace-nowrap"
+                    >
+                      <Bell size={16} />
+                      Alerts {alerts.length > 0 && `(${alerts.length})`}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowTransactions(true)}
+                      className="gap-2 whitespace-nowrap"
+                    >
+                      <History size={16} />
+                      History
+                    </Button>
+                    <SidebarTrigger className="gap-2" />
+                    <ThemeToggle />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Main Content */}
+          <main className="container mx-auto px-4 py-8">
+            {/* Market Overview & Fear & Greed */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <div className="lg:col-span-2">
+                <MarketOverview />
+              </div>
+              <FearGreedIndex />
+            </div>
+
+            {/* Price Comparison */}
+            <div className="mb-8">
+              {cryptoData && <PriceComparison cryptoData={cryptoData} />}
+            </div>
+
+            {/* Top Movers */}
+            {cryptoData && cryptoData.length > 0 && (
+              <TopMovers cryptoData={cryptoData} onCryptoClick={setSelectedCrypto} />
+            )}
+
+            {/* News Section */}
+            <NewsSection />
       {/* Header */}
       <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-6">
@@ -146,23 +228,6 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Market Overview & Fear & Greed */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2">
-            <MarketOverview />
-          </div>
-          <FearGreedIndex />
-        </div>
-
-        {/* Advanced Tools */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Calculators />
-          {cryptoData && <PriceComparison cryptoData={cryptoData} />}
-        </div>
-
-        {/* Top Movers */}
         {cryptoData && cryptoData.length > 0 && (
           <TopMovers cryptoData={cryptoData} onCryptoClick={setSelectedCrypto} />
         )}
@@ -282,15 +347,19 @@ const Index = () => {
           onClose={() => setShowTransactions(false)}
           cryptoData={cryptoData || []}
         />
-      </main>
+          </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50 mt-12">
-        <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          <p>Data provided by CoinGecko • Updates every 30 seconds</p>
+          {/* Footer */}
+          <footer className="border-t border-border/50 mt-12">
+            <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+              <p>Data provided by CoinGecko • Updates every 30 seconds</p>
+            </div>
+          </footer>
         </div>
-      </footer>
-    </div>
+
+        <CalculatorSidebar />
+      </div>
+    </SidebarProvider>
   );
 };
 
