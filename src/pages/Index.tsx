@@ -22,7 +22,7 @@ import { usePriceAlerts } from "@/hooks/usePriceAlerts";
 import { TrendingUp, Star, LayoutGrid, List, Wallet, Bell, History } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,9 +88,8 @@ const Index = () => {
   const displayedData = filteredAndSortedData?.slice(0, displayLimit);
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen bg-background w-full flex">
-        <div className="flex-1 min-w-0">
+    <div className="min-h-screen bg-background w-full flex">
+      <div className="flex-1 min-w-0">
           {/* Header */}
           <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-10">
             <div className="container mx-auto px-4 py-6">
@@ -347,19 +346,18 @@ const Index = () => {
           onClose={() => setShowTransactions(false)}
           cryptoData={cryptoData || []}
         />
-          </main>
+        </main>
 
-          {/* Footer */}
-          <footer className="border-t border-border/50 mt-12">
-            <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-              <p>Data provided by CoinGecko • Updates every 30 seconds</p>
-            </div>
-          </footer>
-        </div>
-
-        <CalculatorSidebar />
+        {/* Footer */}
+        <footer className="border-t border-border/50 mt-12">
+          <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+            <p>Data provided by CoinGecko • Updates every 30 seconds</p>
+          </div>
+        </footer>
       </div>
-    </SidebarProvider>
+
+      <CalculatorSidebar />
+    </div>
   );
 };
 
