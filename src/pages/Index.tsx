@@ -88,88 +88,102 @@ const Index = () => {
   const displayedData = filteredAndSortedData?.slice(0, displayLimit);
 
   return (
-    <div className="min-h-screen bg-background w-full flex">
-      <div className="flex-1 min-w-0">
-          {/* Header */}
-          <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-10">
-            <div className="container mx-auto px-4 py-6">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+    <div className="min-h-screen bg-background w-full flex flex-col lg:flex-row">
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* Header */}
+        <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-20 bg-background">
+          <div className="container mx-auto px-4 py-4 lg:py-6">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center">
-                    <TrendingUp size={24} className="text-primary-foreground" />
+                  <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-primary flex items-center justify-center">
+                    <TrendingUp size={20} className="lg:w-6 lg:h-6 text-primary-foreground" />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                    <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                       CryptoTracker
                     </h1>
-                    <p className="text-sm text-muted-foreground">Real-time cryptocurrency prices</p>
+                    <p className="text-xs lg:text-sm text-muted-foreground hidden sm:block">Real-time cryptocurrency prices</p>
                   </div>
                 </div>
-                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-                  <SearchBar value={searchQuery} onChange={setSearchQuery} />
-                  <div className="flex gap-2 flex-wrap">
-                    <Button
-                      variant={showOnlyFavorites ? "default" : "outline"}
-                      onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
-                      className="gap-2 whitespace-nowrap"
-                    >
-                      <Star size={16} className={showOnlyFavorites ? "fill-current" : ""} />
-                      Favorites {favorites.length > 0 && `(${favorites.length})`}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowPortfolio(true)}
-                      className="gap-2 whitespace-nowrap"
-                    >
-                      <Wallet size={16} />
-                      Portfolio
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowAlerts(true)}
-                      className="gap-2 whitespace-nowrap"
-                    >
-                      <Bell size={16} />
-                      Alerts {alerts.length > 0 && `(${alerts.length})`}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowTransactions(true)}
-                      className="gap-2 whitespace-nowrap"
-                    >
-                      <History size={16} />
-                      History
-                    </Button>
-                    <SidebarTrigger className="gap-2" />
+                <div className="flex gap-2 lg:hidden">
+                  <SidebarTrigger />
+                  <ThemeToggle />
+                </div>
+              </div>
+              
+              <div className="flex flex-col lg:flex-row gap-3 lg:gap-4 items-stretch lg:items-center">
+                <SearchBar value={searchQuery} onChange={setSearchQuery} />
+                <div className="flex gap-2 flex-wrap items-center">
+                  <Button
+                    variant={showOnlyFavorites ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+                    className="gap-2 whitespace-nowrap"
+                  >
+                    <Star size={16} className={showOnlyFavorites ? "fill-current" : ""} />
+                    <span className="hidden sm:inline">Favorites</span>
+                    {favorites.length > 0 && `(${favorites.length})`}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowPortfolio(true)}
+                    className="gap-2 whitespace-nowrap"
+                  >
+                    <Wallet size={16} />
+                    <span className="hidden sm:inline">Portfolio</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAlerts(true)}
+                    className="gap-2 whitespace-nowrap"
+                  >
+                    <Bell size={16} />
+                    <span className="hidden sm:inline">Alerts</span>
+                    {alerts.length > 0 && <span className="hidden sm:inline">({alerts.length})</span>}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowTransactions(true)}
+                    className="gap-2 whitespace-nowrap"
+                  >
+                    <History size={16} />
+                    <span className="hidden sm:inline">History</span>
+                  </Button>
+                  <div className="hidden lg:flex gap-2">
+                    <SidebarTrigger />
                     <ThemeToggle />
                   </div>
                 </div>
               </div>
             </div>
-          </header>
-
-          {/* Main Content */}
-          <main className="container mx-auto px-4 py-8">
-            {/* Market Overview & Fear & Greed */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              <div className="lg:col-span-2">
-                <MarketOverview />
-              </div>
-              <FearGreedIndex />
+          </div>
+        </header>
+        {/* Main Content */}
+        <main className="flex-1 container mx-auto px-4 py-6 lg:py-8 overflow-auto">
+          {/* Market Overview & Fear & Greed */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+            <div className="lg:col-span-2">
+              <MarketOverview />
             </div>
+            <FearGreedIndex />
+          </div>
 
-            {/* Price Comparison */}
-            <div className="mb-8">
-              {cryptoData && <PriceComparison cryptoData={cryptoData} />}
-            </div>
+          {/* Price Comparison */}
+          <div className="mb-6 lg:mb-8">
+            {cryptoData && <PriceComparison cryptoData={cryptoData} />}
+          </div>
 
-            {/* Top Movers */}
-            {cryptoData && cryptoData.length > 0 && (
-              <TopMovers cryptoData={cryptoData} onCryptoClick={setSelectedCrypto} />
-            )}
+          {/* Top Movers */}
+          {cryptoData && cryptoData.length > 0 && (
+            <TopMovers cryptoData={cryptoData} onCryptoClick={setSelectedCrypto} />
+          )}
 
-            {/* News Section */}
-            <NewsSection />
+          {/* News Section */}
+          <NewsSection />
       {/* Header */}
       <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-6">
@@ -234,123 +248,123 @@ const Index = () => {
         {/* News Section */}
         <NewsSection />
 
-        {/* Sort Controls */}
-        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground mb-3">Sort by:</h2>
-            <SortControls currentSort={sortBy} onSortChange={setSortBy} />
+          {/* Sort Controls */}
+          <div className="mb-4 lg:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-base lg:text-lg font-semibold text-foreground mb-3">Sort by:</h2>
+              <SortControls currentSort={sortBy} onSortChange={setSortBy} />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="icon"
+                onClick={() => setViewMode("grid")}
+              >
+                <LayoutGrid size={18} />
+              </Button>
+              <Button
+                variant={viewMode === "table" ? "default" : "outline"}
+                size="icon"
+                onClick={() => setViewMode("table")}
+              >
+                <List size={18} />
+              </Button>
+              {filteredAndSortedData && <ExportButton data={filteredAndSortedData} />}
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
-              size="icon"
-              onClick={() => setViewMode("grid")}
-            >
-              <LayoutGrid size={18} />
-            </Button>
-            <Button
-              variant={viewMode === "table" ? "default" : "outline"}
-              size="icon"
-              onClick={() => setViewMode("table")}
-            >
-              <List size={18} />
-            </Button>
-            {filteredAndSortedData && <ExportButton data={filteredAndSortedData} />}
-          </div>
-        </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(12)].map((_, i) => (
-              <CryptoSkeleton key={i} />
-            ))}
-          </div>
-        ) : (
-          <>
-            {filteredAndSortedData && filteredAndSortedData.length > 0 ? (
-              <>
-                <div className="mb-6">
-                  <p className="text-muted-foreground">
-                    Showing {displayedData?.length} of {filteredAndSortedData.length} {filteredAndSortedData.length === 1 ? "cryptocurrency" : "cryptocurrencies"}
-                    {showOnlyFavorites && " in favorites"}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+              {[...Array(12)].map((_, i) => (
+                <CryptoSkeleton key={i} />
+              ))}
+            </div>
+          ) : (
+            <>
+              {filteredAndSortedData && filteredAndSortedData.length > 0 ? (
+                <>
+                  <div className="mb-4 lg:mb-6">
+                    <p className="text-sm lg:text-base text-muted-foreground">
+                      Showing {displayedData?.length} of {filteredAndSortedData.length} {filteredAndSortedData.length === 1 ? "cryptocurrency" : "cryptocurrencies"}
+                      {showOnlyFavorites && " in favorites"}
+                    </p>
+                  </div>
+                  
+                  {viewMode === "grid" ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                      {displayedData?.map((crypto) => (
+                        <CryptoCard
+                          key={crypto.id}
+                          {...crypto}
+                          isFavorite={isFavorite(crypto.id)}
+                          onToggleFavorite={toggleFavorite}
+                          onClick={() => setSelectedCrypto(crypto)}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    displayedData && (
+                      <TableView
+                        data={displayedData}
+                        onCryptoClick={setSelectedCrypto}
+                        isFavorite={isFavorite}
+                        onToggleFavorite={toggleFavorite}
+                      />
+                    )
+                  )}
+
+                  {displayedData && displayedData.length < filteredAndSortedData.length && (
+                    <div className="text-center mt-6 lg:mt-8">
+                      <Button
+                        variant="outline"
+                        onClick={() => setDisplayLimit(prev => prev + 12)}
+                        className="gap-2"
+                      >
+                        Load More
+                      </Button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-lg lg:text-xl text-muted-foreground">
+                    {showOnlyFavorites
+                      ? "No favorites yet. Click the star icon on any crypto to add it to your favorites!"
+                      : `No cryptocurrencies found matching "${searchQuery}"`}
                   </p>
                 </div>
-                
-                {viewMode === "grid" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {displayedData?.map((crypto) => (
-                      <CryptoCard
-                        key={crypto.id}
-                        {...crypto}
-                        isFavorite={isFavorite(crypto.id)}
-                        onToggleFavorite={toggleFavorite}
-                        onClick={() => setSelectedCrypto(crypto)}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  displayedData && (
-                    <TableView
-                      data={displayedData}
-                      onCryptoClick={setSelectedCrypto}
-                      isFavorite={isFavorite}
-                      onToggleFavorite={toggleFavorite}
-                    />
-                  )
-                )}
+              )}
+            </>
+          )}
 
-                {displayedData && displayedData.length < filteredAndSortedData.length && (
-                  <div className="text-center mt-8">
-                    <Button
-                      variant="outline"
-                      onClick={() => setDisplayLimit(prev => prev + 12)}
-                      className="gap-2"
-                    >
-                      Load More
-                    </Button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-xl text-muted-foreground">
-                  {showOnlyFavorites
-                    ? "No favorites yet. Click the star icon on any crypto to add it to your favorites!"
-                    : `No cryptocurrencies found matching "${searchQuery}"`}
-                </p>
-              </div>
-            )}
-          </>
-        )}
+          <CryptoDetailModal
+            crypto={selectedCrypto}
+            isOpen={!!selectedCrypto}
+            onClose={() => setSelectedCrypto(null)}
+          />
 
-        <CryptoDetailModal
-          crypto={selectedCrypto}
-          isOpen={!!selectedCrypto}
-          onClose={() => setSelectedCrypto(null)}
-        />
+          <PortfolioModal
+            isOpen={showPortfolio}
+            onClose={() => setShowPortfolio(false)}
+            cryptoData={cryptoData || []}
+          />
 
-        <PortfolioModal
-          isOpen={showPortfolio}
-          onClose={() => setShowPortfolio(false)}
-          cryptoData={cryptoData || []}
-        />
+          <PriceAlertsModal
+            isOpen={showAlerts}
+            onClose={() => setShowAlerts(false)}
+            cryptoData={cryptoData || []}
+          />
 
-        <PriceAlertsModal
-          isOpen={showAlerts}
-          onClose={() => setShowAlerts(false)}
-          cryptoData={cryptoData || []}
-        />
-
-        <TransactionHistory
-          isOpen={showTransactions}
-          onClose={() => setShowTransactions(false)}
-          cryptoData={cryptoData || []}
-        />
+          <TransactionHistory
+            isOpen={showTransactions}
+            onClose={() => setShowTransactions(false)}
+            cryptoData={cryptoData || []}
+          />
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-border/50 mt-12">
-          <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+        <footer className="border-t border-border/50 mt-auto">
+          <div className="container mx-auto px-4 py-4 lg:py-6 text-center text-xs lg:text-sm text-muted-foreground">
             <p>Data provided by CoinGecko • Updates every 30 seconds</p>
           </div>
         </footer>
